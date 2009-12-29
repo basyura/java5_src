@@ -1140,12 +1140,19 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	}
 
 	/**
-	 * Adds the contents of the int arrays x and y. This method allocates
-	 * a new int array to hold the answer and returns a reference to that
-	 * array.
+	 * Adds the contents of the int arrays x and y. 
+	 *
+	 *   x と y の int 配列を加算します。
+	 * 
+	 * This method allocates a new int array 
+	 * to hold the answer and returns a reference to that array.
+	 *
+	 *   新しい int 配列を返します。
 	 */
 	private static int[] add(int[] x, int[] y) {
 		// If x is shorter, swap the two arrays
+		// y が x より長い場合は入れ替える
+		// → x の方が長い配列になる
 		if (x.length < y.length) {
 			int[] tmp = x;
 			x = y;
@@ -1154,32 +1161,54 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 
 		int xIndex = x.length;
 		int yIndex = y.length;
+		// 返却用配列
 		int result[] = new int[xIndex];
+		// 合計値
 		long sum = 0;
 
 		// Add common parts of both numbers
+		// 共通部分を加算していく
+		// xIndex >= yIndex になっているので差分が残る
+		//  
+		// シフト演算
+		//   x >>> y
+		//   xのビットをyビットだけ、右にシフトさせる。左端には0を埋める。
 		while(yIndex > 0) {
+			// マスクした値を足して 32 ビット右にシフトする
 			sum = (x[--xIndex] & LONG_MASK) + 
 				(y[--yIndex] & LONG_MASK) + (sum >>> 32);
+			// 合計値を格納？
 			result[xIndex] = (int)sum;
 		}
 
 		// Copy remainder of longer number while carry propagation is required
+		// 入れ替え時に残った部分をコピー
+		// 合計値を 32 bit 右にシフトした値が 0 でない場合
 		boolean carry = (sum >>> 32 != 0);
-		while (xIndex > 0 && carry)
+		// xIndex が 0 より大きい間
+		// TODO: なにしてんのかさっぱり
+		// carry ってのは桁上げ？
+		while (xIndex > 0 && carry) 
 			carry = ((result[--xIndex] = x[xIndex] + 1) == 0);
 
 		// Copy remainder of longer number
+		// ロング値の残りをコピー
 		while (xIndex > 0)
 			result[--xIndex] = x[xIndex];
 
 		// Grow result if necessary
+		// 必要であれば
 		if (carry) {
+			// 新しい長さ
 			int newLen = result.length + 1;
+			// 配列を生成
 			int temp[] = new int[newLen];
-			for (int i = 1; i<newLen; i++)
+			// 詰め替える
+			for (int i = 1 ; i < newLen ; i++)
 				temp[i] = result[i-1];
+			// 入れ替える
 			temp[0] = 0x01;
+			// 入れ替える
 			result = temp;
 		}
 		return result;
