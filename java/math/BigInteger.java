@@ -76,7 +76,13 @@ import java.io.*;
  * @author  Michael McCloskey
  * @since JDK1.1
  */
-
+/*
+ *  Memo
+ *
+ *  値となる int の配列(mag)と符号(signum)を保持する
+ *
+ * 
+ */
 public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * The signum of this BigInteger: -1 for negative, 0 for zero, or
@@ -958,10 +964,16 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * This private constructor differs from its public cousin
 	 * with the arguments reversed in two ways: it assumes that its
 	 * arguments are correct, and it doesn't copy the magnitude array.
+	 *
+	 *   このプライベートなコンストラクタはパブリックなものと引数の順序が異なります。
+	 *   これには二つの理由があります。
+	 *   ・引数が正しと仮定している
+	 *   ・magnitude の配列をコピーしない
 	 */
 	private BigInteger(int[] magnitude, int signum) {
-		this.signum = (magnitude.length==0 ? 0 : signum);
-		this.mag = magnitude;
+		// 長さが 0 の場合は zero として扱う
+		this.signum = (magnitude.length == 0 ? 0 : signum);
+		this.mag    = magnitude;
 	}
 
 	/**
