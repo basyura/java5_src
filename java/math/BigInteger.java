@@ -191,6 +191,8 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 
 	/**
 	 * This mask is used to obtain the value of an int as if it were unsigned.
+	 *
+	 * 符号無し(unsigned) の場合の int 値を得るために使用します。
 	 */
 	private final static long LONG_MASK = 0xffffffffL;
 
@@ -1089,25 +1091,39 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * Returns a BigInteger whose value is <tt>(this + val)</tt>.
 	 *
+	 * 値が (this + val) の BigInteger を返します。
+	 *
 	 * @param  val value to be added to this BigInteger.
 	 * @return <tt>this + val</tt>
 	 */
 	public BigInteger add(BigInteger val) {
 		int[] resultMag;
+		// zero の場合は自分を返す(合計無し)。
 		if (val.signum == 0)
 			return this;
+		// 自分が zero の場合は引数をそのまま返す
 		if (signum == 0)
 			return val;
-		if (val.signum == signum)
+		// 符号が同じ場合 ( + かつ + または - かつ - )
+		if (val.signum == signum) {
+			// 値を合計して返却
 			return new BigInteger(add(mag, val.mag), signum);
-
+		}
+		// 符号が異なる場合 ( + と - )
+		// mag が小さい場合は -1
+		// 同じ場合は 0
+		// mag が大きい場合は 1
 		int cmp = intArrayCmp(mag, val.mag);
+		// 値が同じ場合
 		if (cmp==0)
 			return ZERO;
+		// mag の方が大きい場合は mag から val.mag を引く
+		// mag の方が小さい場合は val.mag から mag を引く
 		resultMag = (cmp>0 ? subtract(mag, val.mag)
 				: subtract(val.mag, mag));
+		// 先頭の 0 を削除
 		resultMag = trustedStripLeadingZeroInts(resultMag);
-
+		// BigInteger を生成し直す。符号判定も行う。
 		return new BigInteger(resultMag, cmp*signum);
 	}
 
@@ -1183,9 +1199,18 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 
 	/**
 	 * Subtracts the contents of the second int arrays (little) from the
-	 * first (big).  The first int array (big) must represent a larger number
-	 * than the second.  This method allocates the space necessary to hold the
-	 * answer.
+	 * first (big).  
+	 * 
+	 *   big から little を引いたものを返します。
+	 * 
+	 * The first int array (big) must represent a larger number than the second.  
+	 *
+	 *   一番目の配列(big)は二番目の配列より大きい値でなければならない。
+	 * 
+	 * This method allocates the space necessary to hold the answer.
+	 *
+	 *   このメソッドは結果を保持するためのスペースを確保します。
+	 *   (int result[] のこと？)
 	 */
 	private static int[] subtract(int[] big, int[] little) {
 		int bigIndex = big.length;
@@ -2581,22 +2606,36 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/*
 	 * Returns -1, 0 or +1 as big-endian unsigned int array arg1 is
 	 * less than, equal to, or greater than arg2.
+	 *
+	 * ビッグエンディアンとして比較
+	 * arg1 が arg2 より小さい場合は -1
+	 * arg1 が arg2 と同じ場合は      0
+	 * arg1 が arg2 より大きい場合は  1
 	 */
 	private static int intArrayCmp(int[] arg1, int[] arg2) {
+		// 長さを比較して arg1 の方が短い場合は -1
+		// ビッグエンディアンで比較しているから桁数が少ないの値が小さい事になる
 		if (arg1.length < arg2.length)
 			return -1;
+		// 長さを比較して arg1 の方が長い場合は 1
 		if (arg1.length > arg2.length)
 			return 1;
 
 		// Argument lengths are equal; compare the values
-		for (int i=0; i<arg1.length; i++) {
+		// 長さが同じ場合は各値を比較する
+		for (int i = 0 ; i < arg1.length ; i++) {
+			// 符号無し(unsigned)の値に変換して比較する
+			// マイナス値はこないはずだから単純に int 値で比較しても良さそうなもんだが
 			long b1 = arg1[i] & LONG_MASK;
 			long b2 = arg2[i] & LONG_MASK;
+			// arg2 の方が大きいので -1 を返す
 			if (b1 < b2)
 				return -1;
+			// arg1 の方が大きいので 1 を返す
 			if (b1 > b2)
 				return 1;
 		}
+		// 値が同じ
 		return 0;
 	}
 
@@ -2889,7 +2928,12 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 
 	/**
 	 * Returns the input array stripped of any leading zero bytes.
+	 *
+	 *   先頭の 0 を削除した配列を返します。
+	 * 	
 	 * Since the source is trusted the copying may be skipped.
+	 *
+	 *  ソースが信頼されている場合はコピーはスキップされます。 
 	 */
 	private static int[] trustedStripLeadingZeroInts(int val[]) {
 		int byteLength = val.length;
