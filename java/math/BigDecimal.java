@@ -229,19 +229,13 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The number of decimal digits in this BigDecimal, or 0 if the
      * number of digits are not known (lookaside information). 
-	 * 
-	 * BigDecimal に含まれる数値の桁数。桁数が分からない場合は 0 。
-	 * 
 	 * If nonzero, the value is guaranteed correct.  
-	 * 
-	 * 0 でない場合、値は正しいと保証されます。
-	 * 
 	 * Use the precision() method to obtain and set the value if it might be 0.  
-	 *
-	 * 値を得るために precision() を使用し、0 である場合は値をセットしてください。
-	 * 
 	 * This field is mutable until set nonzero.
 	 *
+	 * BigDecimal に含まれる数値の桁数。桁数が分からない場合は 0 。
+	 * 0 でない場合、値は正しいと保証されます。
+	 * 値を得るために precision() を使用し、0 である場合は値をセットしてください。
 	 * このフィールドは 0 意外をセットされるまでは可変です。
      *
      * @since  1.5
@@ -287,19 +281,16 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * Translates a character array representation of a
      * <tt>BigDecimal</tt> into a <tt>BigDecimal</tt>, 
-	 * 
-	 * BigDecimal の char 配列表現を BigDecimal に変換します。
-	 * 
 	 * accepting the same sequence of characters as the 
 	 * {@link #BigDecimal(String)} constructor, 
 	 * while allowing a sub-array to be specified.
-	 *
-	 * BigDecimal(String) のコンストラクタと同じ文字列を受け入れます。
-     * 
      * <p>Note that if the sequence of characters is already available
      * within a character array, using this constructor is faster than
      * converting the <tt>char</tt> array to string and using the
      * <tt>BigDecimal(String)</tt> constructor .
+	 *
+	 * BigDecimal の char 配列表現を BigDecimal に変換します。
+	 * BigDecimal(String) のコンストラクタと同じ文字列を受け入れます。
 	 *
 	 * 注意：文字配列が有効な場合は、文字列に変換して 
 	 *       BigDecimal(String) を使うよりも早いです。
@@ -354,7 +345,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
             }
 
             // should now be at numeric part of the significand
-			// 小数点の位置(dotoff)と有効な桁数(精度)を取得する
+			// 小数点の位置(dotoff)と有効な桁数(精度)(precision)を取得する
 			//
 			// 小数点の位置。無い場合は -1  ('.' offset, -1 if none)
             int dotoff = -1;                 
@@ -370,82 +361,86 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 			// ワーク (work)
             char c;
 			// 長さ(len) が 0 より大きい間グルグル
-            for (; len > 0; offset++, len--) {
+			for (; len > 0; offset++, len--) {
 				// オフセット位置の文字を取り出す
-                c = in[offset];
+				c = in[offset];
 				// 0 より大きく、9 以下の数値の場合
-                if ((c >= '0' && c <= '9') || Character.isDigit(c)) {
-                    // 文字を保持する (have digit)
-                    coeff[precision] = c;
+				if ((c >= '0' && c <= '9') || Character.isDigit(c)) {
+					// 文字を保持する (have digit)
+					coeff[precision] = c;
 					// 数値の数(精度)をカウントアップ (count of digits)
-                    precision++;
+					precision++;
 					// 次へ
-                    continue;
-                }
+					continue;
+				}
 				// 小数点の場合
-                if (c == '.') {
-                    // have dot
+				if (c == '.') {
+					// have dot
 					// 既に小数点をパースしていた場合は例外 (two dots)
 					// 初期値はマイナスなので、小数点があれば 0 以上になる
-                    if (dotoff >= 0)         
-                        throw new NumberFormatException();
+					if (dotoff >= 0)         
+						throw new NumberFormatException();
 					// 小数点の位置を保持
-                    dotoff = offset;
+					dotoff = offset;
 					// 次へ
-                    continue;
-                }
-                // exponent expected
+					continue;
+				}
+				// exponent expected
 				// 此処にくる場合は指数であるはず。
 				// よって、それ以外の場合は例外を投げる。
-                if ((c != 'e') && (c != 'E'))
-                    throw new NumberFormatException();
+				if ((c != 'e') && (c != 'E'))
+					throw new NumberFormatException();
 				// オフセットをすすめる
-                offset++;
-                c = in[offset];
-                len--;
-                boolean negexp = false;
-                // optional sign
-                if (c == '-' || c == '+') {
-                    negexp = (c == '-');
-                    offset++;
-                    c = in[offset];
-                    len--;
-                }
-                if (len <= 0 || len > 10)    // no digits, or too long
-                    throw new NumberFormatException();
-                // c now holds first digit of exponent
-                for (;; len--) {
-                    int v;
-                    if (c >= '0' && c <= '9') {
-                        v = c - '0';
-                    } else {
-                        v = Character.digit(c, 10);
-                        if (v < 0)            // not a digit
-                            throw new NumberFormatException();
-                    }
-                    exp = exp * 10 + v;
-                    if (len == 1)
-                        break;               // that was final character
-                    offset++;
-                    c = in[offset];
-                }
-                if (negexp)                  // apply sign
-                    exp = -exp;
-                // Next test is required for backwards compatibility
-                if ((int)exp != exp)         // overflow
-                    throw new NumberFormatException();
-                break;                       // [saves a test]
-                }
-            // here when no characters left
-            if (precision == 0)              // no digits found
+				offset++;
+				c = in[offset];
+				len--;
+				boolean negexp = false;
+				// optional sign
+				if (c == '-' || c == '+') {
+					negexp = (c == '-');
+					offset++;
+					c = in[offset];
+					len--;
+				}
+				if (len <= 0 || len > 10)    // no digits, or too long
+					throw new NumberFormatException();
+				// c now holds first digit of exponent
+				for (;; len--) {
+					int v;
+					if (c >= '0' && c <= '9') {
+						v = c - '0';
+					} else {
+						v = Character.digit(c, 10);
+						if (v < 0)            // not a digit
+							throw new NumberFormatException();
+					}
+					exp = exp * 10 + v;
+					if (len == 1)
+						break;               // that was final character
+					offset++;
+					c = in[offset];
+				}
+				if (negexp)                  // apply sign
+					exp = -exp;
+				// Next test is required for backwards compatibility
+				if ((int)exp != exp)         // overflow
+					throw new NumberFormatException();
+				break;                       // [saves a test]
+			}
+            // 文字の解析が終わったらここにきます (here when no characters left)
+			// 数値が存在しなかった場合は例外を投げます (no digits found)
+            if (precision == 0) 
                 throw new NumberFormatException();
-
-            if (dotoff >= 0) {               // had dot; set scale
+			// 小数点があった場合はスケールを設定します (had dot; set scale)
+            if (dotoff >= 0) {
+				// 小数点の位置(小数点以下何桁あるか)
                 scale = precision - (dotoff - cfirst);
                 // [cannot overflow]
             }
-            if (exp != 0) {                  // had significant exponent
+			// 指数があった場合 (had significant exponent)
+            if (exp != 0) {
                 try {
+					// スケールのチェック
                     scale = checkScale(-exp + scale); // adjust
                 } catch (ArithmeticException e) { 
                     throw new NumberFormatException("Scale out of range.");
