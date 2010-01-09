@@ -206,6 +206,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The unscaled value of this BigDecimal, as returned by {@link
      * #unscaledValue}.
+	 *
+	 * 「スケールなしの値」である BigInteger
+	 *  #unscaledValue メソッドで返される
      *
      * @serial
      * @see #unscaledValue
@@ -214,6 +217,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * The scale of this BigDecimal, as returned by {@link #scale}.
+	 *
+	 * この BigDecimal の「スケール」
+	 * #scale メソッドで返される
      *
      * @serial
      * @see #scale
@@ -237,6 +243,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     // Constants
     /**
      * The value 0, with a scale of 0.
+	 *
+	 * 値が 0 でスケールが 0 の BigDecimal
      *
      * @since  1.5
      */
@@ -245,6 +253,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * The value 1, with a scale of 0.
+	 *
+	 * 値が 1 でスケールが 0 の BigDecimal
      *
      * @since  1.5
      */
@@ -254,6 +264,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The value 10, with a scale of 0.
      *
+	 * 値が 10 でスケールが 0 の BigDecimal
+	 *
      * @since  1.5
      */
     public static final BigDecimal TEN =
@@ -263,14 +275,23 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * Translates a character array representation of a
-     * <tt>BigDecimal</tt> into a <tt>BigDecimal</tt>, accepting the
-     * same sequence of characters as the {@link #BigDecimal(String)}
-     * constructor, while allowing a sub-array to be specified.
+     * <tt>BigDecimal</tt> into a <tt>BigDecimal</tt>, 
+	 * 
+	 * BigDecimal の char 配列表現を BigDecimal に変換します。
+	 * 
+	 * accepting the same sequence of characters as the 
+	 * {@link #BigDecimal(String)} constructor, 
+	 * while allowing a sub-array to be specified.
+	 *
+	 * BigDecimal(String) のコンストラクタと同じ文字列を受け入れます。
      * 
      * <p>Note that if the sequence of characters is already available
      * within a character array, using this constructor is faster than
      * converting the <tt>char</tt> array to string and using the
      * <tt>BigDecimal(String)</tt> constructor .
+	 *
+	 * 注意：文字配列が有効な場合は、文字列に変換して 
+	 *       BigDecimal(String) を使うよりも早いです。
      *
      * @param  in <tt>char</tt> array that is the source of characters.
      * @param  offset first character in the array to inspect.
@@ -281,15 +302,25 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * @since  1.5
      */
     public BigDecimal(char[] in, int offset, int len) {
-        // This is the primary string to BigDecimal constructor; all
-        // incoming strings end up here; it uses explicit (inline)
-        // parsing for speed and generates at most one intermediate
-        // (temporary) object (a char[] array).
-
+        // This is the primary string to BigDecimal constructor; 
+		// all incoming strings end up here; 
+		// it uses explicit (inline) parsing for speed 
+		// and generates at most one intermediate (temporary) object (a char[] array).
         // use array bounds checking to handle too-long, len == 0,
         // bad offset, etc.
+		//
+		// 文字列を BigDecimal に変換する主なコンストラクタです。
+		// 文字列が引数で渡された場合はここで処理されます。
+		// スピードのために明確なパースを行い、
+		// 一時的な配列(char[])を生成します。
+		// 配列は長すぎるものや、長さが 0、offset がおかしいものの
+		// チェックに使用されます。 
+		//
+		// 
         try {
             // handle the sign
+			// 負の値か否かを保持するフラグ
+			// 正の数であると仮定する。
             boolean isneg = false;          // assume positive
             if (in[offset] == '-') {
                 isneg = true;               // leading minus means negative
@@ -482,7 +513,11 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * Translates the string representation of a <tt>BigDecimal</tt>
-     * into a <tt>BigDecimal</tt>.  The string representation consists
+     * into a <tt>BigDecimal</tt>.  T
+	 * 	
+	 * 	文字列表現を BigDecimal に変換します。
+	 * 
+	 * he string representation consists
      * of an optional sign, <tt>'+'</tt> (<tt>'&#92;u002B'</tt>) or
      * <tt>'-'</tt> (<tt>'&#92;u002D'</tt>), followed by a sequence of
      * zero or more decimal digits ("the integer"), optionally
@@ -1832,7 +1867,13 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * number is multiplied by ten to the power of the negation of the
      * scale.  For example, a scale of <tt>-3</tt> means the unscaled
      * value is multiplied by 1000.
-     *
+	 *
+	 * この BigDecimal の「スケール」を返します。
+	 * 0 または正の数の場合、スケールは小数点の右側の数になります。
+	 * 負の場合、 10 のマイナス値を掛けた値になります。
+	 * 例えばスケールが -3 の場合は、
+	 * スケールされていない値(実際の値?)は 1000 を掛けたものになります。
+	 *
      * @return the scale of this <tt>BigDecimal</tt>.
      */
     public int scale() {
@@ -1862,7 +1903,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Returns a <tt>BigInteger</tt> whose value is the <i>unscaled
      * value</i> of this <tt>BigDecimal</tt>.  (Computes <tt>(this *
      * 10<sup>this.scale()</sup>)</tt>.)
-     *
+	 *
+     * 値がこの BigDecimal の「スケールなしの値」である BigInteger を返します
+	 *
      * @return the unscaled value of this <tt>BigDecimal</tt>.
      * @since  1.2
      */
@@ -2851,21 +2894,38 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * Match the scales of two <tt>BigDecimal<tt>s to align their
      * least significant digits.
+	 *
+	 * 二つの BigDecimal のスケールを比較して桁数の少ない方にあわせます。
      * 
      * <p>If the scales of val[0] and val[1] differ, rescale
      * (non-destructively) the lower-scaled <tt>BigDecimal</tt> so
-     * they match.  That is, the lower-scaled reference will be
+     * they match.  
+	 * 
+	 * 二つのスケールが異なる場合は、
+	 * 小さい方のスケールが変更されます。
+	 * 
+	 * That is, the lower-scaled reference will be
      * replaced by a reference to a new object with the same scale as
      * the other <tt>BigDecimal</tt>.
+	 *
+	 * これにより、スケールの小さい方の参照は
+	 * 同じスケールの異なるオブジェクトに置き換えられます。
      *
      * @param  val array of two elements referring to the two
      *         <tt>BigDecimal</tt>s to be aligned.
      */
     private static void matchScale(BigDecimal[] val) {
-        if (val[0].scale < val[1].scale)
+		// 自身のスケールより他のスケールの方が大きい場合
+        if (val[0].scale < val[1].scale) {
+			// スケールの大きい方に置き換える 
             val[0] = val[0].setScale(val[1].scale);
-        else if (val[1].scale < val[0].scale)
+		} 
+		// スケールが他より自身の方が大きい場合
+		else if (val[1].scale < val[0].scale) {
+			// スケールの大きい方に置き換える
             val[1] = val[1].setScale(val[0].scale);
+		}
+		// 同じ場合は何もしない
     }
 
     /**
