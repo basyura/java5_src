@@ -207,8 +207,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * The unscaled value of this BigDecimal, as returned by {@link
      * #unscaledValue}.
 	 *
-	 * uƒXƒP[ƒ‹‚È‚µ‚Ì’lv‚Å‚ ‚é BigInteger
-	 *  #unscaledValue ƒƒ\ƒbƒh‚Å•Ô‚³‚ê‚é
+	 * ã€Œã‚¹ã‚±ãƒ¼ãƒ«ãªã—ã®å€¤ã€ã§ã‚ã‚‹ BigInteger
+	 *  #unscaledValue ãƒ¡ã‚½ãƒƒãƒ‰ã§è¿”ã•ã‚Œã‚‹
      *
      * @serial
      * @see #unscaledValue
@@ -218,8 +218,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The scale of this BigDecimal, as returned by {@link #scale}.
 	 *
-	 * ‚±‚Ì BigDecimal ‚ÌuƒXƒP[ƒ‹v
-	 * #scale ƒƒ\ƒbƒh‚Å•Ô‚³‚ê‚é
+	 * ã“ã® BigDecimal ã®ã€Œã‚¹ã‚±ãƒ¼ãƒ«ã€
+	 * #scale ãƒ¡ã‚½ãƒƒãƒ‰ã§è¿”ã•ã‚Œã‚‹
      *
      * @serial
      * @see #scale
@@ -228,10 +228,21 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
                             // calculations must be done in longs
     /**
      * The number of decimal digits in this BigDecimal, or 0 if the
-     * number of digits are not known (lookaside information).  If
-     * nonzero, the value is guaranteed correct.  Use the precision()
-     * method to obtain and set the value if it might be 0.  This
-     * field is mutable until set nonzero.
+     * number of digits are not known (lookaside information). 
+	 * 
+	 * BigDecimal ã«å«ã¾ã‚Œã‚‹æ•°å€¤ã®æ¡æ•°ã€‚æ¡æ•°ãŒåˆ†ã‹ã‚‰ãªã„å ´åˆã¯ 0 ã€‚
+	 * 
+	 * If nonzero, the value is guaranteed correct.  
+	 * 
+	 * 0 ã§ãªã„å ´åˆã€å€¤ã¯æ­£ã—ã„ã¨ä¿è¨¼ã•ã‚Œã¾ã™ã€‚
+	 * 
+	 * Use the precision() method to obtain and set the value if it might be 0.  
+	 *
+	 * å€¤ã‚’å¾—ã‚‹ãŸã‚ã« precision() ã‚’ä½¿ç”¨ã—ã€0 ã§ã‚ã‚‹å ´åˆã¯å€¤ã‚’ã‚»ãƒƒãƒˆã—ã¦ãã ã•ã„ã€‚
+	 * 
+	 * This field is mutable until set nonzero.
+	 *
+	 * ã“ã®ãƒ•ã‚£ãƒ¼ãƒ«ãƒ‰ã¯ 0 æ„å¤–ã‚’ã‚»ãƒƒãƒˆã•ã‚Œã‚‹ã¾ã§ã¯å¯å¤‰ã§ã™ã€‚
      *
      * @since  1.5
      */
@@ -244,7 +255,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The value 0, with a scale of 0.
 	 *
-	 * ’l‚ª 0 ‚ÅƒXƒP[ƒ‹‚ª 0 ‚Ì BigDecimal
+	 * å€¤ãŒ 0 ã§ã‚¹ã‚±ãƒ¼ãƒ«ãŒ 0 ã® BigDecimal
      *
      * @since  1.5
      */
@@ -254,7 +265,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The value 1, with a scale of 0.
 	 *
-	 * ’l‚ª 1 ‚ÅƒXƒP[ƒ‹‚ª 0 ‚Ì BigDecimal
+	 * å€¤ãŒ 1 ã§ã‚¹ã‚±ãƒ¼ãƒ«ãŒ 0 ã® BigDecimal
      *
      * @since  1.5
      */
@@ -264,7 +275,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The value 10, with a scale of 0.
      *
-	 * ’l‚ª 10 ‚ÅƒXƒP[ƒ‹‚ª 0 ‚Ì BigDecimal
+	 * å€¤ãŒ 10 ã§ã‚¹ã‚±ãƒ¼ãƒ«ãŒ 0 ã® BigDecimal
 	 *
      * @since  1.5
      */
@@ -277,21 +288,21 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Translates a character array representation of a
      * <tt>BigDecimal</tt> into a <tt>BigDecimal</tt>, 
 	 * 
-	 * BigDecimal ‚Ì char ”z—ñ•\Œ»‚ğ BigDecimal ‚É•ÏŠ·‚µ‚Ü‚·B
+	 * BigDecimal ã® char é…åˆ—è¡¨ç¾ã‚’ BigDecimal ã«å¤‰æ›ã—ã¾ã™ã€‚
 	 * 
 	 * accepting the same sequence of characters as the 
 	 * {@link #BigDecimal(String)} constructor, 
 	 * while allowing a sub-array to be specified.
 	 *
-	 * BigDecimal(String) ‚ÌƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Æ“¯‚¶•¶š—ñ‚ğó‚¯“ü‚ê‚Ü‚·B
+	 * BigDecimal(String) ã®ã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã¨åŒã˜æ–‡å­—åˆ—ã‚’å—ã‘å…¥ã‚Œã¾ã™ã€‚
      * 
      * <p>Note that if the sequence of characters is already available
      * within a character array, using this constructor is faster than
      * converting the <tt>char</tt> array to string and using the
      * <tt>BigDecimal(String)</tt> constructor .
 	 *
-	 * ’ˆÓF•¶š”z—ñ‚ª—LŒø‚Èê‡‚ÍA•¶š—ñ‚É•ÏŠ·‚µ‚Ä 
-	 *       BigDecimal(String) ‚ğg‚¤‚æ‚è‚à‘‚¢‚Å‚·B
+	 * æ³¨æ„ï¼šæ–‡å­—é…åˆ—ãŒæœ‰åŠ¹ãªå ´åˆã¯ã€æ–‡å­—åˆ—ã«å¤‰æ›ã—ã¦ 
+	 *       BigDecimal(String) ã‚’ä½¿ã†ã‚ˆã‚Šã‚‚æ—©ã„ã§ã™ã€‚
      *
      * @param  in <tt>char</tt> array that is the source of characters.
      * @param  offset first character in the array to inspect.
@@ -309,55 +320,86 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
         // use array bounds checking to handle too-long, len == 0,
         // bad offset, etc.
 		//
-		// •¶š—ñ‚ğ BigDecimal ‚É•ÏŠ·‚·‚éå‚ÈƒRƒ“ƒXƒgƒ‰ƒNƒ^‚Å‚·B
-		// •¶š—ñ‚ªˆø”‚Å“n‚³‚ê‚½ê‡‚Í‚±‚±‚Åˆ—‚³‚ê‚Ü‚·B
-		// ƒXƒs[ƒh‚Ì‚½‚ß‚É–¾Šm‚Èƒp[ƒX‚ğs‚¢A
-		// ˆê“I‚È”z—ñ(char[])‚ğ¶¬‚µ‚Ü‚·B
-		// ”z—ñ‚Í’·‚·‚¬‚é‚à‚Ì‚âA’·‚³‚ª 0Aoffset ‚ª‚¨‚©‚µ‚¢‚à‚Ì‚Ì
-		// ƒ`ƒFƒbƒN‚Ég—p‚³‚ê‚Ü‚·B 
+		// æ–‡å­—åˆ—ã‚’ BigDecimal ã«å¤‰æ›ã™ã‚‹ä¸»ãªã‚³ãƒ³ã‚¹ãƒˆãƒ©ã‚¯ã‚¿ã§ã™ã€‚
+		// æ–‡å­—åˆ—ãŒå¼•æ•°ã§æ¸¡ã•ã‚ŒãŸå ´åˆã¯ã“ã“ã§å‡¦ç†ã•ã‚Œã¾ã™ã€‚
+		// ã‚¹ãƒ”ãƒ¼ãƒ‰ã®ãŸã‚ã«æ˜ç¢ºãªãƒ‘ãƒ¼ã‚¹ã‚’è¡Œã„ã€
+		// ä¸€æ™‚çš„ãªé…åˆ—(char[])ã‚’ç”Ÿæˆã—ã¾ã™ã€‚
+		// é…åˆ—ã¯é•·ã™ãã‚‹ã‚‚ã®ã‚„ã€é•·ã•ãŒ 0ã€offset ãŒãŠã‹ã—ã„ã‚‚ã®ã®
+		// ãƒã‚§ãƒƒã‚¯ã«ä½¿ç”¨ã•ã‚Œã¾ã™ã€‚ 
 		//
 		// 
         try {
-            // handle the sign
-			// •‰‚Ì’l‚©”Û‚©‚ğ•Û‚·‚éƒtƒ‰ƒO
-			// ³‚Ì”‚Å‚ ‚é‚Æ‰¼’è‚·‚éB
-            boolean isneg = false;          // assume positive
+            // handle the sign      
+			// assume positive
+			// è² ã®å€¤ã‹å¦ã‹ã‚’ä¿æŒã™ã‚‹ãƒ•ãƒ©ã‚°
+			// æ­£ã®æ•°ã§ã‚ã‚‹ã¨ä»®å®šã™ã‚‹ã€‚
+            boolean isneg = false;
+			// leading minus means negative
+			// ã‚ªãƒ•ã‚»ãƒƒãƒˆä½ç½®ãŒãƒã‚¤ãƒŠã‚¹è¨˜å·ã ã£ãŸå ´åˆ
             if (in[offset] == '-') {
-                isneg = true;               // leading minus means negative
+				// ãƒã‚¤ãƒŠã‚¹ãƒ•ãƒ©ã‚°ã‚’ã‚ªãƒ³ã«ã™ã‚‹
+                isneg = true;               
+				// ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’é€²ã‚ã‚‹
                 offset++;
+				// é•·ã•ã‚’çŸ­ãã™ã‚‹
                 len--;
-            } else if (in[offset] == '+') { // leading + allowed
+            } 
+			// leading + allowed
+			// ã‚ªãƒ•ã‚»ãƒƒãƒˆä½ç½®ãŒãƒ—ãƒ©ã‚¹è¨˜å·ã ã£ãŸå ´åˆ
+			else if (in[offset] == '+') {
+				// ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’é€²ã‚ã‚‹
                 offset++;
+				// é•·ã•ã‚’çŸ­ãã™ã‚‹
                 len--;
             }
 
             // should now be at numeric part of the significand
-            int dotoff = -1;                 // '.' offset, -1 if none
-            int cfirst = offset;             // record start of integer
-            long exp = 0;                    // exponent
-            if (len > in.length)             // protect against huge length
+			// å°æ•°ç‚¹ã®ä½ç½®(dotoff)ã¨æœ‰åŠ¹ãªæ¡æ•°(ç²¾åº¦)ã‚’å–å¾—ã™ã‚‹
+			//
+			// å°æ•°ç‚¹ã®ä½ç½®ã€‚ç„¡ã„å ´åˆã¯ -1  ('.' offset, -1 if none)
+            int dotoff = -1;                 
+			// æ•°å€¤ã®å§‹ã¾ã‚‹ä½ç½®ã‚’ä¿æŒã—ã¦ãŠã (record start of integer)
+            int cfirst = offset;
+			// æŒ‡æ•° (exponent)
+            long exp = 0;
+			// ä¸æ­£ãªé•·ã•ã®æŒ‡å®šã®å ´åˆã¯ä¾‹å¤–ã‚’æŠ•ã’ã‚‹ (protect against huge length)
+            if (len > in.length) 
                 throw new NumberFormatException();
-            char coeff[] = new char[len];    // integer significand array
-            char c;                          // work
-
+			// æœ‰åŠ¹ãªæ•´æ•°éƒ¨åˆ†ã®é…åˆ— (integer significand array)
+            char coeff[] = new char[len];
+			// ãƒ¯ãƒ¼ã‚¯ (work)
+            char c;
+			// é•·ã•(len) ãŒ 0 ã‚ˆã‚Šå¤§ãã„é–“ã‚°ãƒ«ã‚°ãƒ«
             for (; len > 0; offset++, len--) {
+				// ã‚ªãƒ•ã‚»ãƒƒãƒˆä½ç½®ã®æ–‡å­—ã‚’å–ã‚Šå‡ºã™
                 c = in[offset];
+				// 0 ã‚ˆã‚Šå¤§ããã€9 ä»¥ä¸‹ã®æ•°å€¤ã®å ´åˆ
                 if ((c >= '0' && c <= '9') || Character.isDigit(c)) {
-                    // have digit
+                    // æ–‡å­—ã‚’ä¿æŒã™ã‚‹ (have digit)
                     coeff[precision] = c;
-                    precision++;             // count of digits
+					// æ•°å€¤ã®æ•°(ç²¾åº¦)ã‚’ã‚«ã‚¦ãƒ³ãƒˆã‚¢ãƒƒãƒ— (count of digits)
+                    precision++;
+					// æ¬¡ã¸
                     continue;
                 }
+				// å°æ•°ç‚¹ã®å ´åˆ
                 if (c == '.') {
                     // have dot
-                    if (dotoff >= 0)         // two dots
+					// æ—¢ã«å°æ•°ç‚¹ã‚’ãƒ‘ãƒ¼ã‚¹ã—ã¦ã„ãŸå ´åˆã¯ä¾‹å¤– (two dots)
+					// åˆæœŸå€¤ã¯ãƒã‚¤ãƒŠã‚¹ãªã®ã§ã€å°æ•°ç‚¹ãŒã‚ã‚Œã° 0 ä»¥ä¸Šã«ãªã‚‹
+                    if (dotoff >= 0)         
                         throw new NumberFormatException();
+					// å°æ•°ç‚¹ã®ä½ç½®ã‚’ä¿æŒ
                     dotoff = offset;
+					// æ¬¡ã¸
                     continue;
                 }
                 // exponent expected
+				// æ­¤å‡¦ã«ãã‚‹å ´åˆã¯æŒ‡æ•°ã§ã‚ã‚‹ã¯ãšã€‚
+				// ã‚ˆã£ã¦ã€ãã‚Œä»¥å¤–ã®å ´åˆã¯ä¾‹å¤–ã‚’æŠ•ã’ã‚‹ã€‚
                 if ((c != 'e') && (c != 'E'))
                     throw new NumberFormatException();
+				// ã‚ªãƒ•ã‚»ãƒƒãƒˆã‚’ã™ã™ã‚ã‚‹
                 offset++;
                 c = in[offset];
                 len--;
@@ -515,7 +557,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Translates the string representation of a <tt>BigDecimal</tt>
      * into a <tt>BigDecimal</tt>.  T
 	 * 	
-	 * 	•¶š—ñ•\Œ»‚ğ BigDecimal ‚É•ÏŠ·‚µ‚Ü‚·B
+	 * 	æ–‡å­—åˆ—è¡¨ç¾ã‚’ BigDecimal ã«å¤‰æ›ã—ã¾ã™ã€‚
 	 * 
 	 * he string representation consists
      * of an optional sign, <tt>'+'</tt> (<tt>'&#92;u002B'</tt>) or
@@ -1868,11 +1910,11 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * scale.  For example, a scale of <tt>-3</tt> means the unscaled
      * value is multiplied by 1000.
 	 *
-	 * ‚±‚Ì BigDecimal ‚ÌuƒXƒP[ƒ‹v‚ğ•Ô‚µ‚Ü‚·B
-	 * 0 ‚Ü‚½‚Í³‚Ì”‚Ìê‡AƒXƒP[ƒ‹‚Í¬”“_‚Ì‰E‘¤‚Ì”‚É‚È‚è‚Ü‚·B
-	 * •‰‚Ìê‡A 10 ‚Ìƒ}ƒCƒiƒX’l‚ğŠ|‚¯‚½’l‚É‚È‚è‚Ü‚·B
-	 * —á‚¦‚ÎƒXƒP[ƒ‹‚ª -3 ‚Ìê‡‚ÍA
-	 * ƒXƒP[ƒ‹‚³‚ê‚Ä‚¢‚È‚¢’l(ÀÛ‚Ì’l?)‚Í 1000 ‚ğŠ|‚¯‚½‚à‚Ì‚É‚È‚è‚Ü‚·B
+	 * ã“ã® BigDecimal ã®ã€Œã‚¹ã‚±ãƒ¼ãƒ«ã€ã‚’è¿”ã—ã¾ã™ã€‚
+	 * 0 ã¾ãŸã¯æ­£ã®æ•°ã®å ´åˆã€ã‚¹ã‚±ãƒ¼ãƒ«ã¯å°æ•°ç‚¹ã®å³å´ã®æ•°ã«ãªã‚Šã¾ã™ã€‚
+	 * è² ã®å ´åˆã€ 10 ã®ãƒã‚¤ãƒŠã‚¹å€¤ã‚’æ›ã‘ãŸå€¤ã«ãªã‚Šã¾ã™ã€‚
+	 * ä¾‹ãˆã°ã‚¹ã‚±ãƒ¼ãƒ«ãŒ -3 ã®å ´åˆã¯ã€
+	 * ã‚¹ã‚±ãƒ¼ãƒ«ã•ã‚Œã¦ã„ãªã„å€¤(å®Ÿéš›ã®å€¤?)ã¯ 1000 ã‚’æ›ã‘ãŸã‚‚ã®ã«ãªã‚Šã¾ã™ã€‚
 	 *
      * @return the scale of this <tt>BigDecimal</tt>.
      */
@@ -1904,7 +1946,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * value</i> of this <tt>BigDecimal</tt>.  (Computes <tt>(this *
      * 10<sup>this.scale()</sup>)</tt>.)
 	 *
-     * ’l‚ª‚±‚Ì BigDecimal ‚ÌuƒXƒP[ƒ‹‚È‚µ‚Ì’lv‚Å‚ ‚é BigInteger ‚ğ•Ô‚µ‚Ü‚·
+     * å€¤ãŒã“ã® BigDecimal ã®ã€Œã‚¹ã‚±ãƒ¼ãƒ«ãªã—ã®å€¤ã€ã§ã‚ã‚‹ BigInteger ã‚’è¿”ã—ã¾ã™
 	 *
      * @return the unscaled value of this <tt>BigDecimal</tt>.
      * @since  1.2
@@ -2895,37 +2937,37 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Match the scales of two <tt>BigDecimal<tt>s to align their
      * least significant digits.
 	 *
-	 * “ñ‚Â‚Ì BigDecimal ‚ÌƒXƒP[ƒ‹‚ğ”äŠr‚µ‚ÄŒ…”‚Ì­‚È‚¢•û‚É‚ ‚í‚¹‚Ü‚·B
+	 * äºŒã¤ã® BigDecimal ã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚’æ¯”è¼ƒã—ã¦æ¡æ•°ã®å°‘ãªã„æ–¹ã«ã‚ã‚ã›ã¾ã™ã€‚
      * 
      * <p>If the scales of val[0] and val[1] differ, rescale
      * (non-destructively) the lower-scaled <tt>BigDecimal</tt> so
      * they match.  
 	 * 
-	 * “ñ‚Â‚ÌƒXƒP[ƒ‹‚ªˆÙ‚È‚éê‡‚ÍA
-	 * ¬‚³‚¢•û‚ÌƒXƒP[ƒ‹‚ª•ÏX‚³‚ê‚Ü‚·B
+	 * äºŒã¤ã®ã‚¹ã‚±ãƒ¼ãƒ«ãŒç•°ãªã‚‹å ´åˆã¯ã€
+	 * å°ã•ã„æ–¹ã®ã‚¹ã‚±ãƒ¼ãƒ«ãŒå¤‰æ›´ã•ã‚Œã¾ã™ã€‚
 	 * 
 	 * That is, the lower-scaled reference will be
      * replaced by a reference to a new object with the same scale as
      * the other <tt>BigDecimal</tt>.
 	 *
-	 * ‚±‚ê‚É‚æ‚èAƒXƒP[ƒ‹‚Ì¬‚³‚¢•û‚ÌQÆ‚Í
-	 * “¯‚¶ƒXƒP[ƒ‹‚ÌˆÙ‚È‚éƒIƒuƒWƒFƒNƒg‚É’u‚«Š·‚¦‚ç‚ê‚Ü‚·B
+	 * ã“ã‚Œã«ã‚ˆã‚Šã€ã‚¹ã‚±ãƒ¼ãƒ«ã®å°ã•ã„æ–¹ã®å‚ç…§ã¯
+	 * åŒã˜ã‚¹ã‚±ãƒ¼ãƒ«ã®ç•°ãªã‚‹ã‚ªãƒ–ã‚¸ã‚§ã‚¯ãƒˆã«ç½®ãæ›ãˆã‚‰ã‚Œã¾ã™ã€‚
      *
      * @param  val array of two elements referring to the two
      *         <tt>BigDecimal</tt>s to be aligned.
      */
     private static void matchScale(BigDecimal[] val) {
-		// ©g‚ÌƒXƒP[ƒ‹‚æ‚è‘¼‚ÌƒXƒP[ƒ‹‚Ì•û‚ª‘å‚«‚¢ê‡
+		// è‡ªèº«ã®ã‚¹ã‚±ãƒ¼ãƒ«ã‚ˆã‚Šä»–ã®ã‚¹ã‚±ãƒ¼ãƒ«ã®æ–¹ãŒå¤§ãã„å ´åˆ
         if (val[0].scale < val[1].scale) {
-			// ƒXƒP[ƒ‹‚Ì‘å‚«‚¢•û‚É’u‚«Š·‚¦‚é 
+			// ã‚¹ã‚±ãƒ¼ãƒ«ã®å¤§ãã„æ–¹ã«ç½®ãæ›ãˆã‚‹ 
             val[0] = val[0].setScale(val[1].scale);
 		} 
-		// ƒXƒP[ƒ‹‚ª‘¼‚æ‚è©g‚Ì•û‚ª‘å‚«‚¢ê‡
+		// ã‚¹ã‚±ãƒ¼ãƒ«ãŒä»–ã‚ˆã‚Šè‡ªèº«ã®æ–¹ãŒå¤§ãã„å ´åˆ
 		else if (val[1].scale < val[0].scale) {
-			// ƒXƒP[ƒ‹‚Ì‘å‚«‚¢•û‚É’u‚«Š·‚¦‚é
+			// ã‚¹ã‚±ãƒ¼ãƒ«ã®å¤§ãã„æ–¹ã«ç½®ãæ›ãˆã‚‹
             val[1] = val[1].setScale(val[0].scale);
 		}
-		// “¯‚¶ê‡‚Í‰½‚à‚µ‚È‚¢
+		// åŒã˜å ´åˆã¯ä½•ã‚‚ã—ãªã„
     }
 
     /**
