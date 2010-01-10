@@ -1014,14 +1014,22 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Returns a <tt>BigDecimal</tt> whose value is <tt>(this +
      * augend)</tt>, and whose scale is <tt>max(this.scale(),
      * augend.scale())</tt>.
+	 *
+	 * 値が (this + augend) でスケールが max(this.scale(), augend.scale())
+	 * の BigDecimal を返します。 
      *
      * @param  augend value to be added to this <tt>BigDecimal</tt>.
      * @return <tt>this + augend</tt>
      */
     public BigDecimal add(BigDecimal augend) {
+		// 配列を用意
         BigDecimal arg[] = new BigDecimal[2];
+		// [0] に自分、[1]に引数を入れる
         arg[0] = this;  arg[1] = augend;
+		// スケールが大きい方に合わせる
         matchScale(arg);
+		// this に other を足して新しい BigDecimal を生成する
+		// スケールは大きい方が適用される( #matchScale で大きい方を両方に適用済み)
         return new BigDecimal(arg[0].intVal.add(arg[1].intVal), arg[0].scale);
     }
 
@@ -2958,7 +2966,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Match the scales of two <tt>BigDecimal<tt>s to align their
      * least significant digits.
 	 *
-	 * 二つの BigDecimal のスケールを比較して桁数の少ない方にあわせます。
+	 * 二つの BigDecimal のスケールを比較して桁数の少ない方(?)にあわせます。
      * 
      * <p>If the scales of val[0] and val[1] differ, rescale
      * (non-destructively) the lower-scaled <tt>BigDecimal</tt> so
