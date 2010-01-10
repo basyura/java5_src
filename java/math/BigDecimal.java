@@ -237,6 +237,11 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 	 * 0 でない場合、値は正しいと保証されます。
 	 * 値を得るために precision() を使用し、0 である場合は値をセットしてください。
 	 * このフィールドは 0 意外をセットされるまでは可変です。
+	 *
+	 * new BigDecimal("123.45");
+	 * → scale     : 2
+	 * → precision : 5
+	 * 
      *
      * @since  1.5
      */
@@ -295,6 +300,11 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 	 * 注意：文字配列が有効な場合は、文字列に変換して 
 	 *       BigDecimal(String) を使うよりも早いです。
      *
+	 * new BigDecimal("123.45");
+	 * → intVal    : 12345
+	 * → scale     : 2
+	 * → precision : 5
+	 * 
      * @param  in <tt>char</tt> array that is the source of characters.
      * @param  offset first character in the array to inspect.
      * @param  len number of characters to consider.
@@ -447,6 +457,7 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
                 }
             }
             // Remove leading zeros from precision (digits count)
+			// 先頭の零を削除する
             int first = 0;
             for (; coeff[first] == '0' && precision > 1; first++)
                 precision--;
@@ -457,15 +468,30 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
             // Later use: BigInteger(coeff, first, precision) for
             //   both cases, by allowing an extra char at the front of
             //   coeff.
+			//
+			// 有効数字をセットする
+			// 有効数字を正確なサイズの配列にコピーする。
+			// 負の値の場合は符号もコピーする。
+			// 後使用：BigInteger(coeff, first, precision)
+			//         両方のケース、coeff の先頭に特別な文字を許す
+
+			// 一時使用
             char quick[];
+			// 負の値でない場合
             if (!isneg) {
+				// 精度と同じサイズの配列を生成
                 quick = new char[precision];
+				// 有効数字の配列をコピーする
                 System.arraycopy(coeff, first, quick, 0, precision);
             } else {
+				// 精度にマイナス記号分を考慮して配列を生成
                 quick = new char[precision+1];
+				// 先頭にマイナスを入れる
                 quick[0] = '-';
+				// 有効数字の配列をコピーする
                 System.arraycopy(coeff, first, quick, 1, precision);
             }
+			// 整数部の BigIntger を生成する
             intVal = new BigInteger(quick);
             // System.out.println(" new: " +intVal+" ["+scale+"] "+precision);
         } catch (ArrayIndexOutOfBoundsException e) {
