@@ -1036,9 +1036,15 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * Returns a <tt>BigDecimal</tt> whose value is <tt>(this + augend)</tt>,
      * with rounding according to the context settings.
+	 *
+	 * コンテキスト設定に従った丸めを使用して、
+	 * 値が (this + augend) である BigDecimal を返します。
      *
      * If either number is zero and the precision setting is nonzero then
      * the other number, rounded if necessary, is used as the result.
+	 *
+	 * どちらかの数値が 0 で精度設定が 0 以外である場合、
+	 * 必要に応じて丸められたほかの数値が結果として使用されます。 
      *
      * @param  augend value to be added to this <tt>BigDecimal</tt>.
      * @param  mc the context to use.
@@ -1047,67 +1053,70 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      *         rounding mode is <tt>UNNECESSARY</tt>.
      * @since  1.5
      */
-    public BigDecimal add(BigDecimal augend, MathContext mc) {
-        if (mc.precision == 0)
-            return add(augend);
-        BigDecimal lhs = this;
+	public BigDecimal add(BigDecimal augend, MathContext mc) {
+		if (mc.precision == 0)
+			return add(augend);
+		BigDecimal lhs = this;
 
-        // If either number is zero then the other number, rounded and
-        // scaled if necessary, is used as the result.
-	{
-	    boolean lhsIsZero = lhs.signum() == 0;
-	    boolean augendIsZero = augend.signum() == 0;
+		// If either number is zero then the other number, rounded and
+		// scaled if necessary, is used as the result.
+		// どちらかの値が 0 の場合、
+		// 必要に応じて丸められた値が使用されます。
+		{
+			// 自分の精度が 0 か否か 
+			boolean lhsIsZero    = lhs.signum() == 0;
+			// 引数の精度が 0 か否か
+			boolean augendIsZero = augend.signum() == 0;
+			// どちらかの精度が 0 の場合
+			if (lhsIsZero || augendIsZero) {
+				// スケールの大きい方を使用
+				int preferredScale = Math.max(lhs.scale(), augend.scale());
+				// 両方 0 の場合、0 を返す。
+				if (lhsIsZero &&  augendIsZero)
+					return new BigDecimal(BigInteger.ZERO, preferredScale);
+				// 0 じゃない方を丸める
+				BigDecimal result = lhsIsZero ? augend.doRound(mc) : lhs.doRound(mc);
 
-	    if (lhsIsZero || augendIsZero) {
-		int preferredScale = Math.max(lhs.scale(), augend.scale());
-		BigDecimal result;
+				if (result.scale() == preferredScale) 
+					return result;
+				else if (result.scale() > preferredScale) 
+					return result.stripZerosToMatchScale(preferredScale);
+				else { // result.scale < preferredScale
+					int precisionDiff = mc.precision - result.precision();
+					int scaleDiff     = preferredScale - result.scale();
 
-		if (lhsIsZero &&  augendIsZero)
-		    return new BigDecimal(BigInteger.ZERO, preferredScale);
+					if (precisionDiff >= scaleDiff)
+						return result.setScale(preferredScale); // can achieve target scale
+					else
+						return result.setScale(result.scale() + precisionDiff);
+				} 
+			}
+		}
 
+		int padding = checkScale((long)lhs.scale - augend.scale);
+		if (padding != 0) {        // scales differ; alignment needed
+			// if one operand is < 0.01 ulp of the other at full
+			// precision, replace it by a 'sticky bit' of +0.001/-0.001 ulp.
+			// [In a sense this is an 'optimization', but it also makes
+			// a much wider range of additions practical.]
+			if (padding < 0) {     // lhs will be padded
+				int ulpscale = lhs.scale - lhs.precision + mc.precision;
+				if (augend.scale - augend.precision() > ulpscale + 1) {
+					augend = BigDecimal.valueOf(augend.signum(), ulpscale + 3);
+				}
+			} else {               // rhs (augend) will be padded
+				int ulpscale = augend.scale - augend.precision + mc.precision;
+				if (lhs.scale - lhs.precision() > ulpscale + 1)
+					lhs = BigDecimal.valueOf(lhs.signum(), ulpscale + 3);
+			}
+			BigDecimal arg[] = new BigDecimal[2];
+			arg[0] = lhs;  arg[1] = augend;
+			matchScale(arg);
+			lhs = arg[0];
+			augend = arg[1];
+		}
 
-		result = lhsIsZero ? augend.doRound(mc) : lhs.doRound(mc);
-
-		if (result.scale() == preferredScale) 
-		    return result;
-		else if (result.scale() > preferredScale) 
-		    return result.stripZerosToMatchScale(preferredScale);
-		else { // result.scale < preferredScale
-		    int precisionDiff = mc.precision - result.precision();
-		    int scaleDiff     = preferredScale - result.scale();
-
-		    if (precisionDiff >= scaleDiff)
-			return result.setScale(preferredScale); // can achieve target scale
-		    else
-			return result.setScale(result.scale() + precisionDiff);
-		} 
-	    }
-	}
-
-        int padding = checkScale((long)lhs.scale - augend.scale);
-        if (padding != 0) {        // scales differ; alignment needed
-            // if one operand is < 0.01 ulp of the other at full
-            // precision, replace it by a 'sticky bit' of +0.001/-0.001 ulp.
-            // [In a sense this is an 'optimization', but it also makes
-            // a much wider range of additions practical.]
-            if (padding < 0) {     // lhs will be padded
-                int ulpscale = lhs.scale - lhs.precision + mc.precision;
-                if (augend.scale - augend.precision() > ulpscale + 1) {
-                    augend = BigDecimal.valueOf(augend.signum(), ulpscale + 3);
-                }
-            } else {               // rhs (augend) will be padded
-                int ulpscale = augend.scale - augend.precision + mc.precision;
-                if (lhs.scale - lhs.precision() > ulpscale + 1)
-                    lhs = BigDecimal.valueOf(lhs.signum(), ulpscale + 3);
-            }
-            BigDecimal arg[] = new BigDecimal[2];
-            arg[0] = lhs;  arg[1] = augend;
-            matchScale(arg);
-            lhs = arg[0];
-            augend = arg[1];
-        }
-	
-	return new BigDecimal(lhs.intVal.add(augend.intVal), lhs.scale).doRound(mc);
+		return new BigDecimal(lhs.intVal.add(augend.intVal), lhs.scale).doRound(mc);
     }
 
     /**
@@ -3182,8 +3191,14 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * Returns a <tt>BigDecimal</tt> rounded according to the
      * MathContext settings; used only if <tt>mc.precision&gt;0</tt>.
+	 *
+	 * MathContext の設定に従って丸めをした BigDecimal を返却します。
+	 * 
      * Does not change <tt>this</tt>; if rounding is needed a new
      * <tt>BigDecimal</tt> is created and returned.
+	 *
+	 * BigDecimal の中身は変わりません。
+	 * 必要な場合は新規に BigDecial が生成されて返却されます。
      *
      * @param mc the context to use.
      * @return a <tt>BigDecimal</tt> rounded according to the MathContext
@@ -3200,19 +3215,24 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 				return this; // no rounding needed
 			precision();                     // find it
 		}
+		// すてる数値部分
 		int drop = precision - mc.precision;   // digits to discard
+		// 無い場合はそのまま返却
 		if (drop <= 0)                       // we fit
 			return this;
+		// 切り取る
 		BigDecimal rounded = dropDigits(mc, drop);
 		// we need to double-check, in case of the 999=>1000 case
+		// ダブルチェック
 		return rounded.doRound(mc);
     }
-
     /**
      * Removes digits from the significand of a <tt>BigDecimal</tt>,
      * rounding according to the MathContext settings.  Does not
      * change <tt>this</tt>; a new <tt>BigDecimal</tt> is always
      * created and returned.
+	 *
+	 * 有効な BigDecimal から MathContext の設定に従って丸めて切り捨てます。
      * 
      * <p>Actual rounding is carried out, as before, by the divide
      * method, as this minimized code changes.  It might be more
