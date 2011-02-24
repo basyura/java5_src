@@ -206,6 +206,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The unscaled value of this BigDecimal, as returned by {@link
      * #unscaledValue}.
+	 *
+	 * 「スケールなしの値」である BigInteger
+	 *  #unscaledValue メソッドで返される
      *
      * @serial
      * @see #unscaledValue
@@ -214,6 +217,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * The scale of this BigDecimal, as returned by {@link #scale}.
+	 *
+	 * この BigDecimal の「スケール」
+	 * #scale メソッドで返される
      *
      * @serial
      * @see #scale
@@ -222,10 +228,20 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
                             // calculations must be done in longs
     /**
      * The number of decimal digits in this BigDecimal, or 0 if the
-     * number of digits are not known (lookaside information).  If
-     * nonzero, the value is guaranteed correct.  Use the precision()
-     * method to obtain and set the value if it might be 0.  This
-     * field is mutable until set nonzero.
+     * number of digits are not known (lookaside information). 
+	 * If nonzero, the value is guaranteed correct.  
+	 * Use the precision() method to obtain and set the value if it might be 0.  
+	 * This field is mutable until set nonzero.
+	 *
+	 * BigDecimal に含まれる数値の桁数。桁数が分からない場合は 0 。
+	 * 0 でない場合、値は正しいと保証されます。
+	 * 値を得るために precision() を使用し、0 である場合は値をセットしてください。
+	 * このフィールドは 0 意外をセットされるまでは可変です。
+	 *
+	 * new BigDecimal("123.45");
+	 * → scale     : 2
+	 * → precision : 5
+	 * 
      *
      * @since  1.5
      */
@@ -237,6 +253,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     // Constants
     /**
      * The value 0, with a scale of 0.
+	 *
+	 * 値が 0 でスケールが 0 の BigDecimal
      *
      * @since  1.5
      */
@@ -245,6 +263,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * The value 1, with a scale of 0.
+	 *
+	 * 値が 1 でスケールが 0 の BigDecimal
      *
      * @since  1.5
      */
@@ -254,6 +274,8 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * The value 10, with a scale of 0.
      *
+	 * 値が 10 でスケールが 0 の BigDecimal
+	 *
      * @since  1.5
      */
     public static final BigDecimal TEN =
@@ -263,15 +285,26 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * Translates a character array representation of a
-     * <tt>BigDecimal</tt> into a <tt>BigDecimal</tt>, accepting the
-     * same sequence of characters as the {@link #BigDecimal(String)}
-     * constructor, while allowing a sub-array to be specified.
-     * 
+     * <tt>BigDecimal</tt> into a <tt>BigDecimal</tt>, 
+	 * accepting the same sequence of characters as the 
+	 * {@link #BigDecimal(String)} constructor, 
+	 * while allowing a sub-array to be specified.
      * <p>Note that if the sequence of characters is already available
      * within a character array, using this constructor is faster than
      * converting the <tt>char</tt> array to string and using the
      * <tt>BigDecimal(String)</tt> constructor .
+	 *
+	 * BigDecimal の char 配列表現を BigDecimal に変換します。
+	 * BigDecimal(String) のコンストラクタと同じ文字列を受け入れます。
+	 *
+	 * 注意：文字配列が有効な場合は、文字列に変換して 
+	 *       BigDecimal(String) を使うよりも早いです。
      *
+	 * new BigDecimal("123.45");
+	 * → intVal    : 12345
+	 * → scale     : 2
+	 * → precision : 5
+	 * 
      * @param  in <tt>char</tt> array that is the source of characters.
      * @param  offset first character in the array to inspect.
      * @param  len number of characters to consider.
@@ -281,104 +314,150 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * @since  1.5
      */
     public BigDecimal(char[] in, int offset, int len) {
-        // This is the primary string to BigDecimal constructor; all
-        // incoming strings end up here; it uses explicit (inline)
-        // parsing for speed and generates at most one intermediate
-        // (temporary) object (a char[] array).
-
+        // This is the primary string to BigDecimal constructor; 
+		// all incoming strings end up here; 
+		// it uses explicit (inline) parsing for speed 
+		// and generates at most one intermediate (temporary) object (a char[] array).
         // use array bounds checking to handle too-long, len == 0,
         // bad offset, etc.
+		//
+		// 文字列を BigDecimal に変換する主なコンストラクタです。
+		// 文字列が引数で渡された場合はここで処理されます。
+		// スピードのために明確なパースを行い、
+		// 一時的な配列(char[])を生成します。
+		// 配列は長すぎるものや、長さが 0、offset がおかしいものの
+		// チェックに使用されます。 
+		//
+		// 
         try {
-            // handle the sign
-            boolean isneg = false;          // assume positive
+            // handle the sign      
+			// assume positive
+			// 負の値か否かを保持するフラグ
+			// 正の数であると仮定する。
+            boolean isneg = false;
+			// leading minus means negative
+			// オフセット位置がマイナス記号だった場合
             if (in[offset] == '-') {
-                isneg = true;               // leading minus means negative
+				// マイナスフラグをオンにする
+                isneg = true;               
+				// オフセットを進める
                 offset++;
+				// 長さを短くする
                 len--;
-            } else if (in[offset] == '+') { // leading + allowed
+            } 
+			// leading + allowed
+			// オフセット位置がプラス記号だった場合
+			else if (in[offset] == '+') {
+				// オフセットを進める
                 offset++;
+				// 長さを短くする
                 len--;
             }
 
             // should now be at numeric part of the significand
-            int dotoff = -1;                 // '.' offset, -1 if none
-            int cfirst = offset;             // record start of integer
-            long exp = 0;                    // exponent
-            if (len > in.length)             // protect against huge length
+			// 小数点の位置(dotoff)と有効な桁数(精度)(precision)を取得する
+			//
+			// 小数点の位置。無い場合は -1  ('.' offset, -1 if none)
+            int dotoff = -1;                 
+			// 数値の始まる位置を保持しておく (record start of integer)
+            int cfirst = offset;
+			// 指数 (exponent)
+            long exp = 0;
+			// 不正な長さの指定の場合は例外を投げる (protect against huge length)
+            if (len > in.length) 
                 throw new NumberFormatException();
-            char coeff[] = new char[len];    // integer significand array
-            char c;                          // work
-
-            for (; len > 0; offset++, len--) {
-                c = in[offset];
-                if ((c >= '0' && c <= '9') || Character.isDigit(c)) {
-                    // have digit
-                    coeff[precision] = c;
-                    precision++;             // count of digits
-                    continue;
-                }
-                if (c == '.') {
-                    // have dot
-                    if (dotoff >= 0)         // two dots
-                        throw new NumberFormatException();
-                    dotoff = offset;
-                    continue;
-                }
-                // exponent expected
-                if ((c != 'e') && (c != 'E'))
-                    throw new NumberFormatException();
-                offset++;
-                c = in[offset];
-                len--;
-                boolean negexp = false;
-                // optional sign
-                if (c == '-' || c == '+') {
-                    negexp = (c == '-');
-                    offset++;
-                    c = in[offset];
-                    len--;
-                }
-                if (len <= 0 || len > 10)    // no digits, or too long
-                    throw new NumberFormatException();
-                // c now holds first digit of exponent
-                for (;; len--) {
-                    int v;
-                    if (c >= '0' && c <= '9') {
-                        v = c - '0';
-                    } else {
-                        v = Character.digit(c, 10);
-                        if (v < 0)            // not a digit
-                            throw new NumberFormatException();
-                    }
-                    exp = exp * 10 + v;
-                    if (len == 1)
-                        break;               // that was final character
-                    offset++;
-                    c = in[offset];
-                }
-                if (negexp)                  // apply sign
-                    exp = -exp;
-                // Next test is required for backwards compatibility
-                if ((int)exp != exp)         // overflow
-                    throw new NumberFormatException();
-                break;                       // [saves a test]
-                }
-            // here when no characters left
-            if (precision == 0)              // no digits found
+			// 有効な整数部分の配列 (integer significand array)
+            char coeff[] = new char[len];
+			// ワーク (work)
+            char c;
+			// 長さ(len) が 0 より大きい間グルグル
+			for (; len > 0; offset++, len--) {
+				// オフセット位置の文字を取り出す
+				c = in[offset];
+				// 0 より大きく、9 以下の数値の場合
+				if ((c >= '0' && c <= '9') || Character.isDigit(c)) {
+					// 文字を保持する (have digit)
+					coeff[precision] = c;
+					// 数値の数(精度)をカウントアップ (count of digits)
+					precision++;
+					// 次へ
+					continue;
+				}
+				// 小数点の場合
+				if (c == '.') {
+					// have dot
+					// 既に小数点をパースしていた場合は例外 (two dots)
+					// 初期値はマイナスなので、小数点があれば 0 以上になる
+					if (dotoff >= 0)         
+						throw new NumberFormatException();
+					// 小数点の位置を保持
+					dotoff = offset;
+					// 次へ
+					continue;
+				}
+				// exponent expected
+				// 此処にくる場合は指数であるはず。
+				// よって、それ以外の場合は例外を投げる。
+				if ((c != 'e') && (c != 'E'))
+					throw new NumberFormatException();
+				// オフセットをすすめる
+				offset++;
+				c = in[offset];
+				len--;
+				boolean negexp = false;
+				// optional sign
+				if (c == '-' || c == '+') {
+					negexp = (c == '-');
+					offset++;
+					c = in[offset];
+					len--;
+				}
+				if (len <= 0 || len > 10)    // no digits, or too long
+					throw new NumberFormatException();
+				// c now holds first digit of exponent
+				for (;; len--) {
+					int v;
+					if (c >= '0' && c <= '9') {
+						v = c - '0';
+					} else {
+						v = Character.digit(c, 10);
+						if (v < 0)            // not a digit
+							throw new NumberFormatException();
+					}
+					exp = exp * 10 + v;
+					if (len == 1)
+						break;               // that was final character
+					offset++;
+					c = in[offset];
+				}
+				if (negexp)                  // apply sign
+					exp = -exp;
+				// Next test is required for backwards compatibility
+				if ((int)exp != exp)         // overflow
+					throw new NumberFormatException();
+				break;                       // [saves a test]
+			}
+            // 文字の解析が終わったらここにきます (here when no characters left)
+			// 数値が存在しなかった場合は例外を投げます (no digits found)
+            if (precision == 0) 
                 throw new NumberFormatException();
-
-            if (dotoff >= 0) {               // had dot; set scale
+			// 小数点があった場合はスケールを設定します (had dot; set scale)
+            if (dotoff >= 0) {
+				// 小数点の位置(小数点以下何桁あるか)
                 scale = precision - (dotoff - cfirst);
                 // [cannot overflow]
             }
-            if (exp != 0) {                  // had significant exponent
+			// 指数があった場合 (had significant exponent)
+            if (exp != 0) {
                 try {
+					// スケールのチェック
                     scale = checkScale(-exp + scale); // adjust
                 } catch (ArithmeticException e) { 
                     throw new NumberFormatException("Scale out of range.");
                 }
             }
             // Remove leading zeros from precision (digits count)
+			// 先頭の零を削除する
             int first = 0;
             for (; coeff[first] == '0' && precision > 1; first++)
                 precision--;
@@ -389,15 +468,30 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
             // Later use: BigInteger(coeff, first, precision) for
             //   both cases, by allowing an extra char at the front of
             //   coeff.
+			//
+			// 有効数字をセットする
+			// 有効数字を正確なサイズの配列にコピーする。
+			// 負の値の場合は符号もコピーする。
+			// 後使用：BigInteger(coeff, first, precision)
+			//         両方のケース、coeff の先頭に特別な文字を許す
+
+			// 一時使用
             char quick[];
+			// 負の値でない場合
             if (!isneg) {
+				// 精度と同じサイズの配列を生成
                 quick = new char[precision];
+				// 有効数字の配列をコピーする
                 System.arraycopy(coeff, first, quick, 0, precision);
             } else {
+				// 精度にマイナス記号分を考慮して配列を生成
                 quick = new char[precision+1];
+				// 先頭にマイナスを入れる
                 quick[0] = '-';
+				// 有効数字の配列をコピーする
                 System.arraycopy(coeff, first, quick, 1, precision);
             }
+			// 整数部の BigIntger を生成する
             intVal = new BigInteger(quick);
             // System.out.println(" new: " +intVal+" ["+scale+"] "+precision);
         } catch (ArrayIndexOutOfBoundsException e) {
@@ -482,7 +576,11 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 
     /**
      * Translates the string representation of a <tt>BigDecimal</tt>
-     * into a <tt>BigDecimal</tt>.  The string representation consists
+     * into a <tt>BigDecimal</tt>.  T
+	 * 	
+	 * 	文字列表現を BigDecimal に変換します。
+	 * 
+	 * he string representation consists
      * of an optional sign, <tt>'+'</tt> (<tt>'&#92;u002B'</tt>) or
      * <tt>'-'</tt> (<tt>'&#92;u002D'</tt>), followed by a sequence of
      * zero or more decimal digits ("the integer"), optionally
@@ -916,23 +1014,37 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Returns a <tt>BigDecimal</tt> whose value is <tt>(this +
      * augend)</tt>, and whose scale is <tt>max(this.scale(),
      * augend.scale())</tt>.
+	 *
+	 * 値が (this + augend) でスケールが max(this.scale(), augend.scale())
+	 * の BigDecimal を返します。 
      *
      * @param  augend value to be added to this <tt>BigDecimal</tt>.
      * @return <tt>this + augend</tt>
      */
     public BigDecimal add(BigDecimal augend) {
+		// 配列を用意
         BigDecimal arg[] = new BigDecimal[2];
+		// [0] に自分、[1]に引数を入れる
         arg[0] = this;  arg[1] = augend;
+		// スケールが大きい方に合わせる
         matchScale(arg);
+		// this に other を足して新しい BigDecimal を生成する
+		// スケールは大きい方が適用される( #matchScale で大きい方を両方に適用済み)
         return new BigDecimal(arg[0].intVal.add(arg[1].intVal), arg[0].scale);
     }
 
     /**
      * Returns a <tt>BigDecimal</tt> whose value is <tt>(this + augend)</tt>,
      * with rounding according to the context settings.
+	 *
+	 * コンテキスト設定に従った丸めを使用して、
+	 * 値が (this + augend) である BigDecimal を返します。
      *
      * If either number is zero and the precision setting is nonzero then
      * the other number, rounded if necessary, is used as the result.
+	 *
+	 * どちらかの数値が 0 で精度設定が 0 以外である場合、
+	 * 必要に応じて丸められたほかの数値が結果として使用されます。 
      *
      * @param  augend value to be added to this <tt>BigDecimal</tt>.
      * @param  mc the context to use.
@@ -941,67 +1053,70 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      *         rounding mode is <tt>UNNECESSARY</tt>.
      * @since  1.5
      */
-    public BigDecimal add(BigDecimal augend, MathContext mc) {
-        if (mc.precision == 0)
-            return add(augend);
-        BigDecimal lhs = this;
+	public BigDecimal add(BigDecimal augend, MathContext mc) {
+		if (mc.precision == 0)
+			return add(augend);
+		BigDecimal lhs = this;
 
-        // If either number is zero then the other number, rounded and
-        // scaled if necessary, is used as the result.
-	{
-	    boolean lhsIsZero = lhs.signum() == 0;
-	    boolean augendIsZero = augend.signum() == 0;
+		// If either number is zero then the other number, rounded and
+		// scaled if necessary, is used as the result.
+		// どちらかの値が 0 の場合、
+		// 必要に応じて丸められた値が使用されます。
+		{
+			// 自分の精度が 0 か否か 
+			boolean lhsIsZero    = lhs.signum() == 0;
+			// 引数の精度が 0 か否か
+			boolean augendIsZero = augend.signum() == 0;
+			// どちらかの精度が 0 の場合
+			if (lhsIsZero || augendIsZero) {
+				// スケールの大きい方を使用
+				int preferredScale = Math.max(lhs.scale(), augend.scale());
+				// 両方 0 の場合、0 を返す。
+				if (lhsIsZero &&  augendIsZero)
+					return new BigDecimal(BigInteger.ZERO, preferredScale);
+				// 0 じゃない方を丸める
+				BigDecimal result = lhsIsZero ? augend.doRound(mc) : lhs.doRound(mc);
 
-	    if (lhsIsZero || augendIsZero) {
-		int preferredScale = Math.max(lhs.scale(), augend.scale());
-		BigDecimal result;
+				if (result.scale() == preferredScale) 
+					return result;
+				else if (result.scale() > preferredScale) 
+					return result.stripZerosToMatchScale(preferredScale);
+				else { // result.scale < preferredScale
+					int precisionDiff = mc.precision - result.precision();
+					int scaleDiff     = preferredScale - result.scale();
 
-		if (lhsIsZero &&  augendIsZero)
-		    return new BigDecimal(BigInteger.ZERO, preferredScale);
+					if (precisionDiff >= scaleDiff)
+						return result.setScale(preferredScale); // can achieve target scale
+					else
+						return result.setScale(result.scale() + precisionDiff);
+				} 
+			}
+		}
 
+		int padding = checkScale((long)lhs.scale - augend.scale);
+		if (padding != 0) {        // scales differ; alignment needed
+			// if one operand is < 0.01 ulp of the other at full
+			// precision, replace it by a 'sticky bit' of +0.001/-0.001 ulp.
+			// [In a sense this is an 'optimization', but it also makes
+			// a much wider range of additions practical.]
+			if (padding < 0) {     // lhs will be padded
+				int ulpscale = lhs.scale - lhs.precision + mc.precision;
+				if (augend.scale - augend.precision() > ulpscale + 1) {
+					augend = BigDecimal.valueOf(augend.signum(), ulpscale + 3);
+				}
+			} else {               // rhs (augend) will be padded
+				int ulpscale = augend.scale - augend.precision + mc.precision;
+				if (lhs.scale - lhs.precision() > ulpscale + 1)
+					lhs = BigDecimal.valueOf(lhs.signum(), ulpscale + 3);
+			}
+			BigDecimal arg[] = new BigDecimal[2];
+			arg[0] = lhs;  arg[1] = augend;
+			matchScale(arg);
+			lhs = arg[0];
+			augend = arg[1];
+		}
 
-		result = lhsIsZero ? augend.doRound(mc) : lhs.doRound(mc);
-
-		if (result.scale() == preferredScale) 
-		    return result;
-		else if (result.scale() > preferredScale) 
-		    return result.stripZerosToMatchScale(preferredScale);
-		else { // result.scale < preferredScale
-		    int precisionDiff = mc.precision - result.precision();
-		    int scaleDiff     = preferredScale - result.scale();
-
-		    if (precisionDiff >= scaleDiff)
-			return result.setScale(preferredScale); // can achieve target scale
-		    else
-			return result.setScale(result.scale() + precisionDiff);
-		} 
-	    }
-	}
-
-        int padding = checkScale((long)lhs.scale - augend.scale);
-        if (padding != 0) {        // scales differ; alignment needed
-            // if one operand is < 0.01 ulp of the other at full
-            // precision, replace it by a 'sticky bit' of +0.001/-0.001 ulp.
-            // [In a sense this is an 'optimization', but it also makes
-            // a much wider range of additions practical.]
-            if (padding < 0) {     // lhs will be padded
-                int ulpscale = lhs.scale - lhs.precision + mc.precision;
-                if (augend.scale - augend.precision() > ulpscale + 1) {
-                    augend = BigDecimal.valueOf(augend.signum(), ulpscale + 3);
-                }
-            } else {               // rhs (augend) will be padded
-                int ulpscale = augend.scale - augend.precision + mc.precision;
-                if (lhs.scale - lhs.precision() > ulpscale + 1)
-                    lhs = BigDecimal.valueOf(lhs.signum(), ulpscale + 3);
-            }
-            BigDecimal arg[] = new BigDecimal[2];
-            arg[0] = lhs;  arg[1] = augend;
-            matchScale(arg);
-            lhs = arg[0];
-            augend = arg[1];
-        }
-	
-	return new BigDecimal(lhs.intVal.add(augend.intVal), lhs.scale).doRound(mc);
+		return new BigDecimal(lhs.intVal.add(augend.intVal), lhs.scale).doRound(mc);
     }
 
     /**
@@ -1832,7 +1947,13 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * number is multiplied by ten to the power of the negation of the
      * scale.  For example, a scale of <tt>-3</tt> means the unscaled
      * value is multiplied by 1000.
-     *
+	 *
+	 * この BigDecimal の「スケール」を返します。
+	 * 0 または正の数の場合、スケールは小数点の右側の数になります。
+	 * 負の場合、 10 のマイナス値を掛けた値になります。
+	 * 例えばスケールが -3 の場合は、
+	 * スケールされていない値(実際の値?)は 1000 を掛けたものになります。
+	 *
      * @return the scale of this <tt>BigDecimal</tt>.
      */
     public int scale() {
@@ -1862,7 +1983,9 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
      * Returns a <tt>BigInteger</tt> whose value is the <i>unscaled
      * value</i> of this <tt>BigDecimal</tt>.  (Computes <tt>(this *
      * 10<sup>this.scale()</sup>)</tt>.)
-     *
+	 *
+     * 値がこの BigDecimal の「スケールなしの値」である BigInteger を返します
+	 *
      * @return the unscaled value of this <tt>BigDecimal</tt>.
      * @since  1.2
      */
@@ -2851,21 +2974,38 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * Match the scales of two <tt>BigDecimal<tt>s to align their
      * least significant digits.
+	 *
+	 * 二つの BigDecimal のスケールを比較して桁数の少ない方(?)にあわせます。
      * 
      * <p>If the scales of val[0] and val[1] differ, rescale
      * (non-destructively) the lower-scaled <tt>BigDecimal</tt> so
-     * they match.  That is, the lower-scaled reference will be
+     * they match.  
+	 * 
+	 * 二つのスケールが異なる場合は、
+	 * 小さい方のスケールが変更されます。
+	 * 
+	 * That is, the lower-scaled reference will be
      * replaced by a reference to a new object with the same scale as
      * the other <tt>BigDecimal</tt>.
+	 *
+	 * これにより、スケールの小さい方の参照は
+	 * 同じスケールの異なるオブジェクトに置き換えられます。
      *
      * @param  val array of two elements referring to the two
      *         <tt>BigDecimal</tt>s to be aligned.
      */
     private static void matchScale(BigDecimal[] val) {
-        if (val[0].scale < val[1].scale)
+		// 自身のスケールより他のスケールの方が大きい場合
+        if (val[0].scale < val[1].scale) {
+			// スケールの大きい方に置き換える 
             val[0] = val[0].setScale(val[1].scale);
-        else if (val[1].scale < val[0].scale)
+		} 
+		// スケールが他より自身の方が大きい場合
+		else if (val[1].scale < val[0].scale) {
+			// スケールの大きい方に置き換える
             val[1] = val[1].setScale(val[0].scale);
+		}
+		// 同じ場合は何もしない
     }
 
     /**
@@ -3051,8 +3191,14 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
     /**
      * Returns a <tt>BigDecimal</tt> rounded according to the
      * MathContext settings; used only if <tt>mc.precision&gt;0</tt>.
+	 *
+	 * MathContext の設定に従って丸めをした BigDecimal を返却します。
+	 * 
      * Does not change <tt>this</tt>; if rounding is needed a new
      * <tt>BigDecimal</tt> is created and returned.
+	 *
+	 * BigDecimal の中身は変わりません。
+	 * 必要な場合は新規に BigDecial が生成されて返却されます。
      *
      * @param mc the context to use.
      * @return a <tt>BigDecimal</tt> rounded according to the MathContext
@@ -3069,19 +3215,24 @@ public class BigDecimal extends Number implements Comparable<BigDecimal> {
 				return this; // no rounding needed
 			precision();                     // find it
 		}
+		// すてる数値部分
 		int drop = precision - mc.precision;   // digits to discard
+		// 無い場合はそのまま返却
 		if (drop <= 0)                       // we fit
 			return this;
+		// 切り取る
 		BigDecimal rounded = dropDigits(mc, drop);
 		// we need to double-check, in case of the 999=>1000 case
+		// ダブルチェック
 		return rounded.doRound(mc);
     }
-
     /**
      * Removes digits from the significand of a <tt>BigDecimal</tt>,
      * rounding according to the MathContext settings.  Does not
      * change <tt>this</tt>; a new <tt>BigDecimal</tt> is always
      * created and returned.
+	 *
+	 * 有効な BigDecimal から MathContext の設定に従って丸めて切り捨てます。
      * 
      * <p>Actual rounding is carried out, as before, by the divide
      * method, as this minimized code changes.  It might be more

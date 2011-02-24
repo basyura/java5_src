@@ -108,6 +108,12 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 * The magnitude of this BigInteger, in <i>big-endian</i> order: the
 	 * zeroth element of this array is the most-significant int of the
 	 * magnitude.  
+	 * The magnitude must be "minimal" in that the most-significant
+	 * int (<tt>mag[0]</tt>) must be non-zero.  
+	 * This is necessary to ensure that there is exactly one representation 
+	 * for each BigInteger value.  
+	 * Note that this implies that the BigInteger zero has a
+	 * zero-length mag array.
 	 * 
 	 * big-endian での BigInteger の大きさ。
 	 * 最上位 int が [0] 番目の要素と見なされます。
@@ -128,21 +134,15 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	 *   一方リトルエンディアンはコンピュータにとって処理しやすい
 	 *   （多倍長加算の起点は最下位バイトであることなど）という利点がある。
 	 *
-	 * 
-	 * The magnitude must be "minimal" in that the most-significant
-	 * int (<tt>mag[0]</tt>) must be non-zero.  
-	 *
 	 * 大きさは最上位 int (mag[0]) の中で最小であり zero でないこと。
-	 * 
-	 * This is necessary to ensure that there is exactly one representation 
-	 * for each BigInteger value.  
 	 *
 	 * それぞれ BigInteger 値を表現する事を保証しなければいけません。
-	 * 
-	 * Note that this implies that the BigInteger zero has a
-	 * zero-length mag array.
-	 *
 	 * BigInteger の zero は長さ 0 の配列を保持している事を意味します。
+	 * 
+	 *	BigInteger bi = new BigInteger("1234567890");
+	 *  // mag => [1234567890]
+	 *	BigInteger bi = new BigInteger("12345678901");
+	 *  // mag => [2, -539222987]
 	 */
 	int[] mag;
 
@@ -153,6 +153,9 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	/**
 	 * The bitCount of this BigInteger, as returned by bitCount(), or -1
 	 * (either value is acceptable).
+	 *
+	 *
+	 * BigInteger の最小の 2 の補数表現内のビット数
 	 *
 	 * @serial
 	 * @see #bitCount
@@ -381,9 +384,9 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 	// Constructs a new BigInteger using a char array with radix=10
 	// char[] を引数として BigInteger を構築。10進を基底とする。
 	BigInteger(char[] val) {
-		// numDigits が初期化されないまま。カーソル位置の判定時に初期化
 		// cursor パース中のカーソル位置
 		// numDigits 先頭の 0 を除いた数値部分の長さ
+		//           カーソル位置の判定時に初期化される
 		int cursor = 0, numDigits;
 		// 文字数
 		int len = val.length;
@@ -454,6 +457,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 		// Process remaining digit groups
 		while (cursor < len) {
 			int groupVal = parseInt(val, cursor, cursor += digitsPerInt[10]);
+			// intRadix[10] : new Integer(0x3b9aca00) => 1000000000
 			destructiveMulAdd(mag, intRadix[10], groupVal);
 		}
 		mag = trustedStripLeadingZeroInts(mag);
@@ -3139,6 +3143,7 @@ public class BigInteger extends Number implements Comparable<BigInteger> {
 		11, 10, 9, 9, 8, 8, 8, 8, 7, 7, 7, 7, 7, 7, 7, 6, 6, 6, 6,
 		6, 6, 6, 6, 6, 6, 6, 6, 6, 6, 5};
 
+	// 基数(?)
 	private static int intRadix[] = {0, 0,
 		0x40000000, 0x4546b3db, 0x40000000, 0x48c27395, 0x159fd800,
 		0x75db9c97, 0x40000000, 0x17179149, 0x3b9aca00, 0xcc6db61,
